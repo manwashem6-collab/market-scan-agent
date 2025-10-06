@@ -26,15 +26,22 @@ jobs:
       - name: Run Market Scan Script
         run: |
           echo "Running market scan..." > log.txt
-          python main.py >> log.txt 2>&1 || echo "main.py not found yet, using fallback."
-          echo "Creating Excel output..."
-          echo "Product,Supplier,Price" > output.csv
-          echo "PPR Pipe 20mm,Example Supplier,1200" >> output.csv
+          if python main.py >> log.txt 2>&1; then
+            echo "✅ main.py executed successfully." >> log.txt
+          else
+            echo "⚠️ main.py not found or failed — using fallback data." >> log.txt
+            echo "Product,Supplier,Price" > output.csv
+            echo "PPR Pipe 20mm,Example Supplier,1200" >> output.csv
+          fi
+
+      - name: Convert CSV to Excel
+        run: |
           python - <<'PY'
-          import pandas as pd
-          df = pd.read_csv('output.csv')
-          df.to_excel('output.xlsx', index=False)
-          PY
+import pandas as pd
+df = pd.read_csv('output.csv')
+df.to_excel('output.xlsx', index=False)
+print("✅ Converted CSV to Excel")
+PY
 
       - name: Upload log & Excel output
         uses: actions/upload-artifact@v4
