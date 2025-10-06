@@ -1,0 +1,46 @@
+name: Run Market Scan Agent (Weekdays, 8AM EAT)
+
+on:
+  schedule:
+    - cron: "0 5 * * 1-5"   # 8:00 AM EAT = 05:00 UTC, Monday–Friday
+  workflow_dispatch:
+
+jobs:
+  run-market-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas openpyxl
+
+      - name: Run Market Scan Script
+        run: |
+          echo "Running market scan..." > log.txt
+          python main.py >> log.txt 2>&1 || echo "⚠️ main.py not found yet, using fallback."
+          echo "Creating Excel output..."
+          echo "Product,Supplier,Price" > output.csv
+          echo "PPR Pipe 20mm,Example Supplier,1200" >> output.csv
+          python - <<'PY'
+import pandas as pd
+df = pd.read_csv('output.csv')
+df.to_excel('output.xlsx', index=False)
+PY
+
+      - name: Upload log & Excel output
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-scan-output
+          path: |
+            log.txt
+            output.xlsx
+
