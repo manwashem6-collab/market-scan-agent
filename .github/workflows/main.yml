@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -27,21 +27,16 @@ jobs:
         run: |
           echo "Running market scan..." > log.txt
           if python main.py >> log.txt 2>&1; then
-            echo "✅ main.py executed successfully." >> log.txt
+            echo "main.py executed successfully." >> log.txt
           else
-            echo "⚠️ main.py not found or failed — using fallback data." >> log.txt
+            echo "main.py not found or failed — using fallback data." >> log.txt
             echo "Product,Supplier,Price" > output.csv
             echo "PPR Pipe 20mm,Example Supplier,1200" >> output.csv
           fi
 
       - name: Convert CSV to Excel
         run: |
-          python - <<'PY'
-import pandas as pd
-df = pd.read_csv('output.csv')
-df.to_excel('output.xlsx', index=False)
-print("✅ Converted CSV to Excel")
-PY
+          python -c "import pandas as pd; pd.read_csv('output.csv').to_excel('output.xlsx', index=False); print('Converted CSV to Excel')"
 
       - name: Upload log & Excel output
         uses: actions/upload-artifact@v4
