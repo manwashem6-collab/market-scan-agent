@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas openpyxl
+          pip install pandas openpyxl requests beautifulsoup4 lxml
 
       - name: Run Market Scan Script
         run: |
@@ -29,7 +29,7 @@ jobs:
           if python main.py >> log.txt 2>&1; then
             echo "main.py executed successfully." >> log.txt
           else
-            echo "main.py not found or failed — using fallback data." >> log.txt
+            echo "main.py not found or failed - using fallback data." >> log.txt
             echo "Product,Supplier,Price" > output.csv
             echo "PPR Pipe 20mm,Example Supplier,1200" >> output.csv
           fi
@@ -42,12 +42,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: market-scan-output
-
-                - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas openpyxl requests beautifulsoup4 lxml
-
           path: |
             log.txt
             output.xlsx
